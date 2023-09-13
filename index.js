@@ -4,7 +4,7 @@ const logule = require('logule').init(module, 'API');
 const environment = process.env.NODE_ENV || "development";
 
 if (environment === "development") {
-  logule.log("Development environment detected");
+  logule.debug("Development environment detected");
 }
 
 // Connecting to PM2 and starting the applications defined in ecosystem.config.js
@@ -20,7 +20,7 @@ pm2.connect((err) => {
       process.exit(2);
     }
 
-    logule.log("PM2 successfully started.");
+    logule.debug("PM2 successfully started.");
   });
 });
 
@@ -29,7 +29,7 @@ process.on('SIGINT', gracefulExit);
 process.on('SIGTERM', gracefulExit);
 
 function gracefulExit() {
-  logule.log("Received a termination signal, gracefully shutting down...");
+  logule.warn("Received a termination signal, gracefully shutting down...");
 
   pm2.stop('ecosystem.config.js', (err) => {
     if (err) {
@@ -37,7 +37,7 @@ function gracefulExit() {
       return process.exit(2);
     }
 
-    logule.log("PM2 successfully stopped.");
+    logule.warn("PM2 successfully stopped.");
     pm2.disconnect(() => {
       process.exit(0);
     });

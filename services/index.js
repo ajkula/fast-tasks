@@ -7,7 +7,7 @@ async function init() {
     await require('./sql/initDatabase').applyMigrations();
   } catch (error) {
     logule.error('Could not initialize database:', error);
-    return;
+    return false;
   }
 
   pm2.launchBus((error, bus) => {
@@ -16,34 +16,49 @@ async function init() {
       process.exit(1);
     }
 
-    bus.on('process:msg', async (packet) => {
-      try {
-        const { topic, data } = packet.data;
-        switch (topic) {
-          case 'API/POST/createTask':
-            await createTask(data.task);
-            break;
+    const handlers = {
+      'API/POST/createTask': handleCreateTask,
+      'API/POST/bulkCreateTasks': handleBulkCreateTasks,
+      'API/GET/getAllTasks': handleGetAllTasks,
+    };
 
-          case 'API/POST/bulkCreateTasks':
-            await bulkCreateTasks(data.tasks);
-            break;
+    bus.on('process:msg', async ({ raw: { data }, process: { pm_id } }) => {
+      const { topic } = data;
+      const handler = handlers[topic];
 
-          case 'API/GET/getAllTasks':
-            await handleGetAllTasks(packet);
-            break;
-
-          default:
-            logule.warn('Unknown topic:', topic);
+      if (handler) {
+        try {
+          await handler({ ...data, pm_id, });
+        } catch (err) {
+          logule.error('Error processing message:', err.message, err.stack);
         }
-      } catch (err) {
-        logule.error('Error processing message:', err);
+      } else {
+        logule.warn('Unknown topic:', topic);
       }
     });
-
-    bus.on('error', (err) => {
-      logule.error('PM2 bus error:', err);
-    });
   });
+}
+
+async function handleCreateTask(data) {
+  try {
+    if (data.task === undefined) throw new Error({ message: "Unknown payload" });
+    await createTask(data.task);
+    return { success: true };
+  } catch (error) {
+    logule.error('Error sending task to service:', error);
+    return { error: error.message };
+  }
+}
+
+async function handleBulkCreateTasks(data) {
+  try {
+    if (data.tasks === undefined) throw new Error({ message: "Unknown payload" });
+    await bulkCreateTasks(data.tasks);
+    return { success: true };
+  } catch (error) {
+    logule.error('Error sending all tasks to service:', error);
+    return { error: error.message };
+  }
 }
 
 async function handleGetAllTasks(packet) {
@@ -53,17 +68,28 @@ async function handleGetAllTasks(packet) {
   } catch (error) {
     logule.error('Error fetching all tasks:', error);
     sendResponseToCaller(packet, { error: error.message });
+    return { error: error.message };
   }
 }
 
-function sendResponseToCaller(packet, data) {
-  pm2.sendDataToProcessId(packet.process.pm_id, {
-    type: 'process:msg',
-    data: {
-      topic: 'API/GET/getAllTasks:response',
-      data
-    }
-  });
+function sendResponseToCaller(data, response) {
+  const responseType = response.error ? 'error' : 'success';
+
+  try {
+    process.send({
+      data: {
+        type: 'process:msg',
+        topic: `${data.topic}:response`,
+        data: {
+          ...response,
+          responseType,
+        },
+      },
+    });
+  } catch (err) {
+    logule.error(err.message, err)
+  }
+
 }
 
 init();

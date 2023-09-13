@@ -4,10 +4,10 @@ info:
   title: "Tasks API"
   description: "API for Task Management"
 servers:
-  - url: "http://localhost:PORT"
+  - url: "http://localhost:3500"
     description: "Local API (replace PORT with your server's listening port)"
 paths:
-  /tasks:
+  /task:
     post:
       summary: "Create a new task"
       requestBody:
@@ -21,7 +21,8 @@ paths:
           description: "Task successfully created"
         "400":
           description: "Bad request"
-
+  
+  /tasks:
     get:
       summary: "Retrieve all tasks"
       responses:

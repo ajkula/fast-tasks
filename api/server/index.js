@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const IPCConnector = require('../connectors/IPCConnector');
 
 module.exports = class Server {
 	constructor (container) {
