@@ -1,0 +1,92 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Tasks API"
+  description: "API for Task Management"
+servers:
+  - url: "http://localhost:PORT"
+    description: "Local API (replace PORT with your server's listening port)"
+paths:
+  /tasks:
+    post:
+      summary: "Create a new task"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        "201":
+          description: "Task successfully created"
+        "400":
+          description: "Bad request"
+
+    get:
+      summary: "Retrieve all tasks"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/Task'
+        "500":
+          description: "Internal server error"
+
+  /tasks/bulk:
+    post:
+      summary: "Create multiple tasks in one request"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: '#/components/schemas/Task'
+      responses:
+        "201":
+          description: "Tasks successfully created"
+        "400":
+          description: "Bad request"
+
+components:
+  schemas:
+    Task:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+          readOnly: true
+          description: "Unique identifier for the task"
+        title:
+          type: "string"
+          maxLength: 255
+          description: "Title of the task"
+        content:
+          type: "string"
+          description: "Content of the task"
+        status:
+          type: "string"
+          enum: ["Pending", "In Progress", "Completed", "On Hold"]
+          default: "Pending"
+          description: "Current status of the task"
+        priority:
+          type: "string"
+          enum: ["Low", "Normal", "High", "Urgent"]
+          default: "Normal"
+          description: "Priority level of the task"
+        created_at:
+          type: "string"
+          format: "date-time"
+          readOnly: true
+          description: "Date and time when the task was created"
+        updated_at:
+          type: "string"
+          format: "date-time"
+          readOnly: true
+          description: "Date and time of the last update of the task"
