@@ -10,7 +10,7 @@ to stop precisely this app's processes:
 <b>pm2 stop all</b> will stop all active process
 </pre>
 
-** Env variables management
+## Env variables management
 
 <pre>Add a .env file in the root of the projectwith all needed env Vars as:
  - PG_HOST=yourhost
