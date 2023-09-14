@@ -1,3 +1,4 @@
+require('dotenv').config();
 const pm2 = require('pm2');
 const logule = require('logule').init(module, "SERVICES");
 const { createTask, bulkCreateTasks, getAllTasks } = require('./sql/queries');

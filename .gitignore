@@ -17,6 +17,8 @@ pids
 .vscode/
 *.swp
 *.swo
+*.bat
+.env
 
 # OS
 .DS_Store
