@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const { Pool } = require('pg');
 const path = require('path');
-const logule = require('../../services/logger');
+const logule = require('../logger');
 
 /**
  * Établit la connexion avec la base de données PostgreSQL en utilisant la bibliothèque pg.
