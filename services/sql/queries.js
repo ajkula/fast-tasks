@@ -1,5 +1,5 @@
 const db = require('./initDatabase').db;
-const logule = require('logule').init(module, "SERVICES");
+const logule = require('../logger');
 
 /**
  * Create a new task in the database.
@@ -23,7 +23,7 @@ async function createTask(task) {
  */
 async function bulkCreateTasks(tasks) {
   if (!tasks.length) {
-    throw new Error('No tasks to create');
+    throw new Error({ message: 'Bad Request', statusCode: 400});
   }
 
   const fields = Object.keys(tasks[0]).join(', ');

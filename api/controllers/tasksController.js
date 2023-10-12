@@ -1,4 +1,5 @@
 const express = require('express');
+const { BadRequestError } = require('../errors');
 
 /**
  * @typedef {Object} Task
@@ -17,7 +18,7 @@ module.exports = class TasksController {
     this.router = express.Router();
 
     this.router.get('/tasks', this.getAllTasks.bind(this));
-    this.router.post('/task', this.createTask.bind(this));
+    this.router.post('/tasks', this.createTask.bind(this));
     this.router.post('/tasks/bulk', this.bulkCreateTasks.bind(this));
   }
 
@@ -28,14 +29,11 @@ module.exports = class TasksController {
    * @param {express.Response} res - The express response object.
    * @returns {Promise<void>} - Sends a JSON response with an array of {@link Task} objects or an error message.
    */
-  async getAllTasks(req, res) {
+  async getAllTasks(req, res, next) {
     try {
       const tasks = await this.container.tasksModel.getAllTasks();
       res.status(200).json(tasks);
-    } catch (error) {
-      this.container.LOGGER.error('Error in getAllTasks:', error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
+    } catch (e) { next(e); }
   }
 
   /**
@@ -45,15 +43,15 @@ module.exports = class TasksController {
    * @param {express.Response} res - The express response object.
    * @returns {Promise<void>} - Sends a JSON response with a success message or an error message.
    */
-  async createTask(req, res) {
+  async createTask(req, res, next) {
     try {
-      if (!req.body) throw new Error("Bad Request");
+      if (!req.body) throw new BadRequestError("Bad Request");
+      if (!req.body || !req.body.title || !req.body.content) {
+        throw new BadRequestError("Bad Request");
+      }
       await this.container.tasksModel.createTask(req.body);
       res.status(201).json({ message: "Created successfully" });
-    } catch (error) {
-      this.container.LOGGER.error(error);
-      res.status(400).json({ message: error.message });
-    }
+    } catch (e) { next(e); }
   }
 
   /**
@@ -63,14 +61,12 @@ module.exports = class TasksController {
    * @param {express.Response} res - The express response object.
    * @returns {Promise<void>} - Sends a JSON response with a success message or an error message.
    */
-  async bulkCreateTasks(req, res) {
+  async bulkCreateTasks(req, res, next) {
     try {
-      if (!req.body) throw new Error("Bad Request");
+      if (!req.body) throw new BadRequestError("Bad Request");
+      if (!req.body || !Array.isArray(req.body) || req.body.length === 0) throw new BadRequestError("Bad Request");
       await this.container.tasksModel.bulkCreateTasks(req.body);
       res.status(201).json({ message: "Bulk creation successful" });
-    } catch (error) {
-      this.container.LOGGER.error(error);
-      res.status(400).json({ message: error.message });
-    }
+    } catch (e) { next(e); }
   }
 }

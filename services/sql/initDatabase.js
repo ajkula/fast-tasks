@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const { Pool } = require('pg');
 const path = require('path');
-const logule = require('logule').init(module, "SERVICES");
+const logule = require('../../services/logger');
 
 /**
  * Établit la connexion avec la base de données PostgreSQL en utilisant la bibliothèque pg.
@@ -30,34 +30,22 @@ async function getCurrentDbVersion() {
     const res = await db.query('SELECT MAX(version) as version FROM db_versions');
     return res.rows[0].version || 0;
   } catch (error) {
-    logule.error('Erreur lors de la récupération de la version de la BD :', error);
+    logule.error('Error while requesting Database version.');
     return 0;
   }
 }
 
 async function createDatabase() {
   try {
-    // Se connecter à la base de données par défaut
-    const defaultDb = new Pool({
-      host: process.env.PG_HOST || 'localhost',
-      user: process.env.PG_USER || 'postgres',
-      password: process.env.PG_PASSWORD || 'password',
-      database: 'postgres',
-      port: process.env.PG_PORT || 5432,
-    });
-
-    // Lire et exécuter le script de création de la base de données
+    // load and execute database script
     const scriptContent = await fs.readFile(path.join(__dirname, 'scripts/000_create_database.sql'), 'utf-8');
-    await defaultDb.query(scriptContent);
-
-    // Fermer la connexion à la base de données par défaut
-    await defaultDb.end();
-    logule.debug('La base de données a été créée avec succès.');
+    await db.query(scriptContent);
+    logule.debug('Database successfully created.');
   } catch (error) {
     if (error.message.includes('already exists')) {
-      logule.debug('La base de données existe déjà.');
+      logule.warn('Database already exists.');
     } else {
-      logule.error('Erreur lors de la création de la base de données :', error);
+      logule.error('Error during Database creation.');
     }
   }
 }
@@ -78,7 +66,6 @@ async function applyMigrations() {
     await db.query('SELECT 1 FROM fast_tasks LIMIT 1');
   } catch (error) {
     if (error.message.includes('does not exist')) {
-      // La base de données n'existe pas, alors créons-la
       await createDatabase();
     }
   }
@@ -94,13 +81,13 @@ async function applyMigrations() {
         const scriptContent = await fs.readFile(script, 'utf-8');
         await db.query(scriptContent);
         await db.query('INSERT INTO db_versions (version, description) VALUES ($1, $2)', [version, `Migration v${version}`]);
-        logule.debug(`Migration v${version} appliquée avec succès.`);
+        logule.debug(`Migration v${version} successfully applied.`);
       } catch (error) {
-        logule.error(`Échec de l'application de la migration v${version} :`, error);
+        logule.error(`Migration application failure v${version}`);
         break;
       }
     }
   }
 }
 
-module.exports = { applyMigrations, db };
+module.exports = { applyMigrations, db, getCurrentDbVersion, createDatabase };

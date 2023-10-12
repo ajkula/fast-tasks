@@ -63,7 +63,6 @@ module.exports = class IPCConnector {
         }
       }
     }, 10000);
-
   }
 
   /**

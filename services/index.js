@@ -1,6 +1,6 @@
 require('dotenv').config();
 const pm2 = require('pm2');
-const logule = require('logule').init(module, "SERVICES");
+const logule = require('./logger');
 const { createTask, bulkCreateTasks, getAllTasks } = require('./sql/queries');
 
 async function init() {
@@ -94,3 +94,7 @@ function sendResponseToCaller(data, response) {
 }
 
 init();
+module.exports = {
+  init,
+  handleCreateTask,
+};

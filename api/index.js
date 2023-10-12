@@ -6,8 +6,9 @@ const yaml = require('js-yaml');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yaml.load(fs.readFileSync('./docs/openapi.yaml', 'utf8'));
+const IPCConnector = require('./connectors/IPCConnector');
 
-let server = new Server({"LOGGER": logule});
+let server = new Server({"LOGGER": logule, "tasksModel": new IPCConnector()});
 let app = server.app;
 
 app.use(cors({
@@ -16,15 +17,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-
-  if (err.name === 'ValidationError') {
-    return res.status(400).send({ error: err.message });
-  }
-
-  return res.status(500).send({ error: err.message });
-});
 
 app.set("PORT", config.LISTEN_PORT);
 

@@ -7,21 +7,6 @@ servers:
   - url: "http://localhost:3500"
     description: "Local API (replace PORT with your server's listening port)"
 paths:
-  /task:
-    post:
-      summary: "Create a new task"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Task'
-      responses:
-        "201":
-          description: "Task successfully created"
-        "400":
-          description: "Bad request"
-  
   /tasks:
     get:
       summary: "Retrieve all tasks"
@@ -36,6 +21,19 @@ paths:
                   $ref: '#/components/schemas/Task'
         "500":
           description: "Internal server error"
+    post:
+      summary: "Create a new task"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        "201":
+          description: "Task successfully created"
+        "400":
+          description: "Bad request"
 
   /tasks/bulk:
     post:
