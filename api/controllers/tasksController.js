@@ -50,7 +50,7 @@ module.exports = class TasksController {
         throw new BadRequestError("Bad Request");
       }
       await this.container.tasksModel.createTask(req.body);
-      res.status(201).json({ message: "Created successfully" });
+      res.status(201).json({ message: "Created" });
     } catch (e) { next(e); }
   }
 
@@ -66,7 +66,7 @@ module.exports = class TasksController {
       if (!req.body) throw new BadRequestError("Bad Request");
       if (!req.body || !Array.isArray(req.body) || req.body.length === 0) throw new BadRequestError("Bad Request");
       await this.container.tasksModel.bulkCreateTasks(req.body);
-      res.status(201).json({ message: "Bulk creation successful" });
+      res.status(201).json({ message: "Created" });
     } catch (e) { next(e); }
   }
 }
