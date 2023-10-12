@@ -57,7 +57,7 @@ describe('Tasks Controller', () => {
         tasksModelMock.expects("createTask").once().withExactArgs(newTask).resolves();
         const res = await request(app).post('/tasks').send(newTask);
         expect(res.statusCode).to.equal(201);
-        expect(res.body.message).to.equal("Created successfully");
+        expect(res.body.message).to.equal("Created");
         tasksModelMock.verify();
     });
 
@@ -76,7 +76,7 @@ describe('Tasks Controller', () => {
         tasksModelMock.expects("bulkCreateTasks").once().withExactArgs(tasks).resolves();
         const res = await request(app).post('/tasks/bulk').send(tasks);
         expect(res.statusCode).to.equal(201);
-        expect(res.body.message).to.equal("Bulk creation successful");
+        expect(res.body.message).to.equal("Created");
         tasksModelMock.verify();
     });
 
