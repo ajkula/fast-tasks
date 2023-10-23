@@ -91,7 +91,7 @@ module.exports = class IPCConnector {
   /**
    * Login user
    */
-  login = async user => {
+  async login(user) {
     try {
       return new Promise((resolve, reject) => {
         const topic = 'API/POST/Auth';
@@ -114,7 +114,7 @@ module.exports = class IPCConnector {
   /**
    * User signin
    */
-  signin = async user => {
+  async signin(user) {
     try {
       return new Promise((resolve, reject) => {
         const topic = 'API/POST/createUser';
@@ -138,7 +138,7 @@ module.exports = class IPCConnector {
    * Retrieves all tasks by sending a message via PM2 to a specified process ID.
    * @returns {Promise<object[]>} - A promise that resolves with all {@link Task}.
    */
-  getAllTasks = async () => {
+  async getAllTasks() {
     try {
       return new Promise((resolve, reject) => {
         const topic = 'API/GET/getAllTasks';
@@ -162,7 +162,7 @@ module.exports = class IPCConnector {
    * Sends a request to create a task via PM2.
    * @param {object} {@link Task} - The task details to create.
    */
-  createTask = async (task) => {
+  async createTask(task) {
     try {
       const topic = 'API/POST/createTask';
       process.send({

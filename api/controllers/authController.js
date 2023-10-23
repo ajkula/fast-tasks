@@ -12,7 +12,7 @@ module.exports = class AuthController {
 
   async login(req, res, next) {
     try {
-      if ((req.body ?? false) || (req.body.username ?? false) || (req.body.pass ?? false)) throw new BadRequestError([
+      if (!req.body || !req.body.username || !req.body.pass) throw new BadRequestError([
         { isErr: true, msg: "Bad Request" },
         { isErr: !!req.body.username, msg: "Missing username" },
         { isErr: !!req.body.pass, msg: "Missing password" },
@@ -20,7 +20,8 @@ module.exports = class AuthController {
         .filter(pair => pair.isErr)
         .map(err => err.msg)
         .join('\n'));
-        this.container.tasksModel.auth(req.body);
+        const result = await this.container.tasksModel.login(req.body);
+        res.status(200).json(result);
     } catch (err) {
       next(err);
     }
@@ -28,7 +29,7 @@ module.exports = class AuthController {
 
   async signin(req, res, next) {
     try {
-      if ((req.body ?? false) || (req.body.username ?? false) || (req.body.pass ?? false)) throw new BadRequestError([
+      if (!req.body || !req.body.username || !req.body.pass) throw new BadRequestError([
         { isErr: true, msg: "Bad Request" },
         { isErr: !!req.body.username, msg: "Missing username" },
         { isErr: !!req.body.pass, msg: "Missing password" },
@@ -36,7 +37,8 @@ module.exports = class AuthController {
         .filter(pair => pair.isErr)
         .map(err => err.msg)
         .join('\n'));
-      this.container.tasksModel.signin(req.body);
+        const result = await this.container.tasksModel.signin(req.body);
+        res.status(200).json(result);
     } catch (err) {
       next(err);
     }
