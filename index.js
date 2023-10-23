@@ -1,5 +1,5 @@
 const pm2 = require('pm2');
-const logule = require('logule').init(module, 'API');
+const logule = require('logule').init(module, 'PM2_INIT');
 
 const environment = process.env.NODE_ENV || "development";
 

@@ -1,9 +1,9 @@
 const request = require('supertest');
-const TasksController = require('../../api/controllers/tasksController');
 const IPCConnectorMock = require('../api/connectors/IPCConnectorMock');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const Server = require('../../api/server');
+require('dotenv').config({ path: '.env.test' });
 
 describe('Tasks Controller', () => {
     let app, tasksModelMock, container, serverInstance;

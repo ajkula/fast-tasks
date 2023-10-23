@@ -1,7 +1,7 @@
 require('dotenv').config();
 const pm2 = require('pm2');
 const logule = require('./logger');
-const { createTask, bulkCreateTasks, getAllTasks } = require('./sql/queries');
+const { createUser, authenticateUser, createTask, bulkCreateTasks, getAllTasks } = require('./sql/queries');
 
 async function init() {
   try {
@@ -18,6 +18,8 @@ async function init() {
     }
 
     const handlers = {
+      'API/POST/Auth': handleAuth,
+      'API/POST/createUser': handleCreateUser,
       'API/POST/createTask': handleCreateTask,
       'API/POST/bulkCreateTasks': handleBulkCreateTasks,
       'API/GET/getAllTasks': handleGetAllTasks,
@@ -38,6 +40,28 @@ async function init() {
       }
     });
   });
+}
+
+async function handleAuth(packet) {
+  try {
+    if (packet.user === undefined) throw new Error({ message: "Bad Request" });
+    const token = await authenticateUser(user.username, user.pass);
+    sendResponseToCaller(packet, { token });
+  } catch(err) {
+    sendResponseToCaller(packet, { error: err.message });
+    return { error: err.message };
+  }
+}
+
+async function handleCreateUser(packet) {
+  try {
+    if (packet.user === undefined) throw new Error({ message: "Bad Request" });
+    const token = await createUser(packet.user);
+    sendResponseToCaller(packet, { token });
+  } catch (err) {
+    sendResponseToCaller(packet, { error: err.message });
+    return { error: err.message };
+  }
 }
 
 async function handleCreateTask(data) {
@@ -75,7 +99,6 @@ async function handleGetAllTasks(packet) {
 
 function sendResponseToCaller(data, response) {
   const responseType = response.error ? 'error' : 'success';
-
   try {
     process.send({
       data: {
@@ -90,11 +113,12 @@ function sendResponseToCaller(data, response) {
   } catch (err) {
     logule.error(err.message, err)
   }
-
 }
 
 init();
 module.exports = {
   init,
   handleCreateTask,
+  handleCreateUser,
+  authenticateUser,
 };

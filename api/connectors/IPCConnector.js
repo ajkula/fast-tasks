@@ -89,6 +89,52 @@ module.exports = class IPCConnector {
   }
 
   /**
+   * Login user
+   */
+  login = async user => {
+    try {
+      return new Promise((resolve, reject) => {
+        const topic = 'API/POST/Auth';
+        this.requests.set(topic, { resolve, reject, timestamp: Date.now() });
+
+        process.send({
+          data: {
+            type: 'process:msg',
+            topic,
+            user,
+          }
+        });
+      });
+    } catch (err) {
+      logule.error('Error in login:', err, err.stack);
+      throw err;
+    }
+  }
+
+  /**
+   * User signin
+   */
+  signin = async user => {
+    try {
+      return new Promise((resolve, reject) => {
+        const topic = 'API/POST/createUser';
+        this.requests.set(topic, { resolve, reject, timestamp: Date.now() });
+
+        process.send({
+          data: {
+            type: 'process:msg',
+            topic,
+            user,
+          }
+        });
+      });
+    } catch (err) {
+      logule.error('Error in signin:', err, err.stack);
+      throw err;
+    }
+  }
+
+  /**
    * Retrieves all tasks by sending a message via PM2 to a specified process ID.
    * @returns {Promise<object[]>} - A promise that resolves with all {@link Task}.
    */
@@ -101,7 +147,7 @@ module.exports = class IPCConnector {
         process.send({
           data: {
             type: 'process:msg',
-            topic: topic,
+            topic,
           },
         });
 

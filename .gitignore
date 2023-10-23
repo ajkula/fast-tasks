@@ -19,6 +19,10 @@ pids
 *.swo
 *.bat
 .env
+.env.test
 
 # OS
 .DS_Store
+
+# Certificate
+cert/

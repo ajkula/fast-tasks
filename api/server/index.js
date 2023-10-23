@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const errorsCatcher = require('../middlewares/errorsCatcher');
 
 module.exports = class Server {
   constructor(container) {
@@ -9,33 +10,7 @@ module.exports = class Server {
     this.app.use(express.json());
     this.loadDBs();
     this.loadControllers();
-
-    this.app.use((err, req, res, next) => {
-      if (res.headersSent) {
-        return next(err);
-      }
-      res.status(err.statusCode || 500);
-      switch (err.statusCode) {
-        case 400:
-          res.json({ message: err.message || "Bad Request" });
-          break;
-        case 401:
-          res.json({ message: err.message || "Unauthorized" });
-          break;
-        case 403:
-          res.json({ message: err.message || "Forbidden" });
-          break;
-        case 404:
-          res.json({ message: err.message || "Not Found" });
-          break;
-        case 405:
-          res.json({ message: err.message || "Methode Not Allowed" });
-          break;
-        default:
-          res.json({ message: err.message || "Internal Server Error" });
-          break;
-      }
-    });
+    this.app.use(errorsCatcher);
   }
 
   async loadDBs() {

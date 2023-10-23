@@ -1,5 +1,6 @@
 const express = require('express');
 const { BadRequestError } = require('../errors');
+const authenticateJWT = require('../middlewares/authenticateJWT');
 
 /**
  * @typedef {Object} Task
@@ -17,9 +18,9 @@ module.exports = class TasksController {
     this.container = container;
     this.router = express.Router();
 
-    this.router.get('/tasks', this.getAllTasks.bind(this));
-    this.router.post('/tasks', this.createTask.bind(this));
-    this.router.post('/tasks/bulk', this.bulkCreateTasks.bind(this));
+    this.router.get('/tasks', authenticateJWT, this.getAllTasks.bind(this));
+    this.router.post('/tasks', authenticateJWT, this.createTask.bind(this));
+    this.router.post('/tasks/bulk', authenticateJWT, this.bulkCreateTasks.bind(this));
   }
 
   /**
@@ -29,7 +30,7 @@ module.exports = class TasksController {
    * @param {express.Response} res - The express response object.
    * @returns {Promise<void>} - Sends a JSON response with an array of {@link Task} objects or an error message.
    */
-  async getAllTasks(req, res, next) {
+  async getAllTasks(_, res, next) {
     try {
       const tasks = await this.container.tasksModel.getAllTasks();
       res.status(200).json(tasks);
@@ -45,9 +46,15 @@ module.exports = class TasksController {
    */
   async createTask(req, res, next) {
     try {
-      if (!req.body) throw new BadRequestError("Bad Request");
       if (!req.body || !req.body.title || !req.body.content) {
-        throw new BadRequestError("Bad Request");
+        throw new BadRequestError([
+          { isErr: true, msg: "Bad Request" },
+          { isErr: !!req.body.title, msg: "Missing title" },
+          { isErr: !!req.body.content, msg: "Missing content" },
+        ]
+          .filter(pair => pair.isErr)
+          .map(err => err.msg)
+          .join('\n'));
       }
       await this.container.tasksModel.createTask(req.body);
       res.status(201).json({ message: "Created" });
@@ -63,7 +70,6 @@ module.exports = class TasksController {
    */
   async bulkCreateTasks(req, res, next) {
     try {
-      if (!req.body) throw new BadRequestError("Bad Request");
       if (!req.body || !Array.isArray(req.body) || req.body.length === 0) throw new BadRequestError("Bad Request");
       await this.container.tasksModel.bulkCreateTasks(req.body);
       res.status(201).json({ message: "Created" });
