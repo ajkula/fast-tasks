@@ -73,6 +73,7 @@ async function applyMigrations() {
   const currentVersion = await getCurrentDbVersion();
   const SQLVersions = [
     { version: 1, script: path.join(__dirname, 'scripts/001_initial_setup.sql') },
+    { version: 2, script: path.join(__dirname, 'scripts/002_create_users_table.sql') },
   ];
 
   for (let { version, script } of SQLVersions) {
@@ -84,6 +85,7 @@ async function applyMigrations() {
         logule.debug(`Migration v${version} successfully applied.`);
       } catch (error) {
         logule.error(`Migration application failure v${version}`);
+        logule.error(error);
         break;
       }
     }

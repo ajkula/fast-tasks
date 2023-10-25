@@ -3,6 +3,7 @@ module.exports = (err, req, res, next) => {
     return next(err);
   }
   res.status(err.statusCode || 500);
+  console.log(err);
   switch (err.statusCode) {
     case 400:
       res.json({ message: err.message || "Bad Request", code: err.statusCode });

@@ -45,8 +45,9 @@ async function init() {
 async function handleAuth(packet) {
   try {
     if (packet.user === undefined) throw new Error({ message: "Bad Request" });
-    const token = await authenticateUser(user.username, user.pass);
-    sendResponseToCaller(packet, { token });
+    const token = await authenticateUser(packet.user.username, packet.user.pass);
+    console.log("AUTH: ", token);
+    sendResponseToCaller(packet, { token, responseType: "success" });
   } catch(err) {
     sendResponseToCaller(packet, { error: err.message });
     return { error: err.message };
@@ -57,7 +58,7 @@ async function handleCreateUser(packet) {
   try {
     if (packet.user === undefined) throw new Error({ message: "Bad Request" });
     const token = await createUser(packet.user);
-    sendResponseToCaller(packet, { token });
+    sendResponseToCaller(packet, { token, responseType: "success" });
   } catch (err) {
     sendResponseToCaller(packet, { error: err.message });
     return { error: err.message };
@@ -89,11 +90,11 @@ async function handleBulkCreateTasks(data) {
 async function handleGetAllTasks(packet) {
   try {
     const tasks = await getAllTasks();
-    sendResponseToCaller(packet, { tasks });
+    sendResponseToCaller(packet, { tasks, responseType: "success" });
   } catch (error) {
     logule.error('Error fetching all tasks:', error);
     sendResponseToCaller(packet, { error: error.message });
-    return { error: error.message };
+    return { error: error };
   }
 }
 

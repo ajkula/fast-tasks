@@ -3,12 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const Server = require('./server');
 const logule = require('logule').init(module, "API");
-const config = require("../config");
 const yaml = require('js-yaml');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yaml.load(fs.readFileSync('./docs/openapi.yaml', 'utf8'));
 const IPCConnector = require('./connectors/IPCConnector');
+
+const config = Object.assign({}, require("../config"), require('dotenv').config());
 
 const server = new Server({"LOGGER": logule, "tasksModel": new IPCConnector()});
 

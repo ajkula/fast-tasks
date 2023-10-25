@@ -2,6 +2,7 @@ const db = require('./initDatabase').db;
 const logule = require('../logger');
 const logger_auth = require('../logger_auth');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 /**
  * Hash a password asynchronously
@@ -35,7 +36,7 @@ async function createUser(user) {
   try {
     if (user === undefined) throw new Error({ message: "Bad Request", statusCode: 400 })
     // Hash the user's password before storing it
-    user.pass = await hashPassword(user.password);
+    user.pass = await hashPassword(user.pass);
 
     const fields = Object.keys(user).join(', ');
     const placeholders = Object.keys(user).map((_, index) => `$${index + 1}`).join(', ');
