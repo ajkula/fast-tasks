@@ -12,12 +12,28 @@ to stop precisely this app's processes:
 
 ## Env variables management
 
-<pre>Add a .env file in the root of the projectwith all needed env Vars as:
+<pre>Add a .env file in the root of the project with all needed env Vars as:
  - PG_HOST=yourhost
  - PG_USER=youruser
  - PG_PASSWORD=yourDBpassword
  - PG_DATABASE=yourDBname
  - PG_PORT=5432
+ - SECRET_KEY=yourSecretKey
 </pre>
+
+<pre>Add a .env.test file in the root of the project:
+ - PG_PASSWORD=yourDBpassword
+ - SECRET_KEY=hgz-yourSecretKey
+ - NODE_ENV=test
+</pre>
+
+You'll need to post /signin :
+```javascript
+{
+  username: yourUserName,
+  pass: yourPassword
+}
+```
+Get the token to your Authorization headers for all tasks routes.
 
 [swagger-ui API Doc](http://localhost:3500/api-docs)
